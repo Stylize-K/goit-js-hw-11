@@ -1,6 +1,19 @@
 @import '~node_modules/modern-normalize/modern-normalize.css';
 
-body {
-  background-color: #f5f0ce;
+.header {
+  background-color: #2596be;
+}
+.header-container {
+  display: flex;
+  justify-content: center;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+.container {
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
+.input {
+  width: 300px;
+}
