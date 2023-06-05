@@ -10,24 +10,27 @@
   padding-bottom: 15px;
 }
 .container {
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.wrapper {
+  padding: 20px;
 }
 
 .input {
   width: 300px;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 .button-search {
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 .gallery {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  padding: 20px 30px;
 }
 
 .photo-card {
@@ -55,4 +58,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.load-more {
+  margin: 20px auto 0 auto;
+  display: block;
+  border-radius: 4px;
+}
+
+.unvisible {
+  display: none;
 }
