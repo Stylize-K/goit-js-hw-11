@@ -1,21 +1,16 @@
 import Notiflix from 'notiflix';
 
-let queryToFetch = '';
-
-//Параметри пошуку Pixabay API
 const BASE_URL = 'https://pixabay.com/api/';
-const KEY = '37030220-55e5b35e4370d44ae057df5d9';
-const image_type = 'photo';
-const orientation = 'horizontal';
-const safesearch = true;
+let queryToFetch = '';
+let pageToFetch = 1;
 
 //Писання на елементи
 const formEl = document.querySelector('.search-form');
-const inputEl = document.querySelector('.input');
-const buttonEl = document.querySelector('.button-search');
 const galleryEl = document.querySelector('.gallery');
+const buttonLoadMore = document.querySelector('.load-more');
 
 formEl.addEventListener('submit', onSubmitForm);
+buttonLoadMore.addEventListener('click', onBtnLoadMoreClick);
 
 //Функція, що відбувається при сабміті фотми (фетч + рендер галереї)
 function onSubmitForm(event) {
@@ -26,32 +21,30 @@ function onSubmitForm(event) {
   }
   queryToFetch = query;
   galleryEl.innerHTML = '';
-  fetchImages(query)
-    .then(images => {
-      //   console.log(images);
-      if (!images.hits.length) {
-        Notiflix.Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-        return;
-      }
-      renderImages(images);
-    })
-    // .then(images => console.log(images))
-    .catch(error => {
-      console.log(error);
-      Notiflix.Notify.failure(
-        'Oops! Something went wrong! Try reloading the page!'
-      );
-    });
+  buttonLoadMore.classList.add('unvisible');
+  getImages(queryToFetch, pageToFetch);
   formEl.reset();
 }
 
+//Функція, що рендерить наступну порцію картинок по кліку на кнопку "Load more"
+function onBtnLoadMoreClick() {
+  buttonLoadMore.classList.add('unvisible');
+  pageToFetch += 1;
+  getImages(queryToFetch, pageToFetch);
+}
+
 //Функція, що фетчить картинки
-function fetchImages(query) {
-  return fetch(
-    `${BASE_URL}?key=${KEY}&q=${query}&image_type=${image_type}&orientation=${orientation}&safesearch=${safesearch}`
-  ).then(response => {
+function fetchImages(queryToFetch, pageToFetch) {
+  const searchParams = new URLSearchParams({
+    key: '37030220-55e5b35e4370d44ae057df5d9',
+    q: queryToFetch,
+    image_type: 'photo',
+    orientation: 'horizontal',
+    safesearch: true,
+    per_page: 40,
+    page: pageToFetch,
+  });
+  return fetch(`${BASE_URL}?${searchParams}`).then(response => {
     if (!response.ok) {
       throw new Error(response.status);
     }
@@ -94,4 +87,28 @@ function renderImages(images) {
     )
     .join('');
   galleryEl.insertAdjacentHTML('beforeend', markup);
+}
+
+//Функція, що фетчить та рендерить порцію картинок
+function getImages(query, pageToFetch) {
+  fetchImages(query, pageToFetch)
+    .then(images => {
+      console.log(images);
+      if (!images.hits.length) {
+        Notiflix.Notify.failure(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+        return;
+      }
+      renderImages(images);
+      Notiflix.Notify.success(`Hooray! We found ${images.totalHits} images.`);
+      if (images.totalHits > 1 && pageToFetch !== images.totalHits) {
+        buttonLoadMore.classList.remove('unvisible');
+      }
+    })
+    // .then(images => console.log(images))
+    .catch(error => {
+      console.log(error);
+      Notiflix.Notify.failure('Oops! Something went wrong!');
+    });
 }
