@@ -1,8 +1,10 @@
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import axios from 'axios';
 
-const BASE_URL = 'https://pixabay.com/api/';
+axios.defaults.baseURL = 'https://pixabay.com/api/';
+
 let queryToFetch = '';
 let pageToFetch = 1;
 
@@ -11,6 +13,7 @@ const formEl = document.querySelector('.search-form');
 const galleryEl = document.querySelector('.gallery');
 const buttonLoadMore = document.querySelector('.load-more');
 
+//Створюємо слухачів подій на форму та кнопку
 formEl.addEventListener('submit', onSubmitForm);
 buttonLoadMore.addEventListener('click', onBtnLoadMoreClick);
 
@@ -36,27 +39,29 @@ function onBtnLoadMoreClick() {
 }
 
 //Функція, що фетчить картинки
-function fetchImages(queryToFetch, pageToFetch) {
-  const searchParams = new URLSearchParams({
-    key: '37030220-55e5b35e4370d44ae057df5d9',
-    q: queryToFetch,
-    image_type: 'photo',
-    orientation: 'horizontal',
-    safesearch: true,
-    per_page: 40,
-    page: pageToFetch,
-  });
-  return fetch(`${BASE_URL}?${searchParams}`).then(response => {
-    if (!response.ok) {
-      throw new Error(response.status);
-    }
-    return response.json();
-  });
+async function fetchImages(queryToFetch, pageToFetch) {
+  try {
+    const { data } = await axios({
+      params: {
+        key: '37030220-55e5b35e4370d44ae057df5d9',
+        q: queryToFetch,
+        image_type: 'photo',
+        orientation: 'horizontal',
+        safesearch: true,
+        per_page: 40,
+        page: pageToFetch,
+      },
+    });
+    return data;
+  } catch (error) {
+    console.log(error);
+    Notiflix.Notify.failure('Oops! Something went wrong!');
+  }
 }
 
 //Функція, що генерує розмітку галереї картинок
-function renderImages(images) {
-  const markup = images.hits
+function renderImages(data) {
+  const markup = data.hits
     .map(
       ({
         webformatURL,
@@ -91,42 +96,34 @@ function renderImages(images) {
 }
 
 //Функція, що фетчить та рендерить порцію картинок
-function getImages(query, pageToFetch) {
-  fetchImages(query, pageToFetch)
-    .then(images => {
-      console.log(images);
-      if (!images.hits.length) {
-        Notiflix.Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-        return;
-      }
-      renderImages(images);
+async function getImages(query, pageToFetch) {
+  const data = await fetchImages(query, pageToFetch);
+  if (!data.hits.length) {
+    Notiflix.Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+    return;
+  }
+  renderImages(data);
 
-      //Ініціалізація біблітеки SimpleLightbox на згенеровану розмітку
-      const options = {
-        captionsData: 'alt',
-        captionDelay: 250,
-      };
-      const lightbox = new SimpleLightbox('.gallery a', options);
+  //Ініціалізація біблітеки SimpleLightbox на згенеровану розмітку
+  const options = {
+    captionsData: 'alt',
+    captionDelay: 250,
+  };
+  const lightbox = new SimpleLightbox('.gallery a', options);
 
-      if (pageToFetch === 1) {
-        Notiflix.Notify.success(`Hooray! We found ${images.totalHits} images.`);
-      }
+  if (pageToFetch === 1) {
+    Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
+  }
 
-      if (images.totalHits >= pageToFetch * 40) {
-        buttonLoadMore.classList.remove('unvisible');
-      }
+  if (data.totalHits >= pageToFetch * 40) {
+    buttonLoadMore.classList.remove('unvisible');
+  }
 
-      if (images.totalHits <= pageToFetch * 40) {
-        Notiflix.Notify.info(
-          "We're sorry, but you've reached the end of search results"
-        );
-      }
-    })
-    // .then(images => console.log(images))
-    .catch(error => {
-      console.log(error);
-      Notiflix.Notify.failure('Oops! Something went wrong!');
-    });
+  if (data.totalHits <= pageToFetch * 40) {
+    Notiflix.Notify.info(
+      "We're sorry, but you've reached the end of search results"
+    );
+  }
 }
