@@ -101,9 +101,18 @@ function getImages(query, pageToFetch) {
         return;
       }
       renderImages(images);
-      Notiflix.Notify.success(`Hooray! We found ${images.totalHits} images.`);
-      if (images.totalHits > 1 && pageToFetch !== images.totalHits) {
+      if (pageToFetch === 1) {
+        Notiflix.Notify.success(`Hooray! We found ${images.totalHits} images.`);
+      }
+
+      if (images.totalHits >= pageToFetch * 40) {
         buttonLoadMore.classList.remove('unvisible');
+      }
+
+      if (images.totalHits <= pageToFetch * 40) {
+        Notiflix.Notify.info(
+          "We're sorry, but you've reached the end of search results"
+        );
       }
     })
     // .then(images => console.log(images))
