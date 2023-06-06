@@ -1,4 +1,6 @@
 import Notiflix from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const BASE_URL = 'https://pixabay.com/api/';
 let queryToFetch = '';
@@ -54,7 +56,6 @@ function fetchImages(queryToFetch, pageToFetch) {
 
 //Функція, що генерує розмітку галереї картинок
 function renderImages(images) {
-  //   console.log(images.hits);
   const markup = images.hits
     .map(
       ({
@@ -66,7 +67,7 @@ function renderImages(images) {
         comments,
         downloads,
       }) => {
-        return `<div class="photo-card">
+        return `<a class="photo-link" href="${largeImageURL}"><div class="photo-card">
   <img src="${webformatURL}" alt="${tags}" loading="lazy" />
   <div class="info">
     <p class="info-item">
@@ -82,7 +83,7 @@ function renderImages(images) {
       <b>Downloads</b>${downloads}
     </p>
   </div>
-</div>`;
+</div></a>`;
       }
     )
     .join('');
@@ -101,6 +102,14 @@ function getImages(query, pageToFetch) {
         return;
       }
       renderImages(images);
+
+      //Ініціалізація біблітеки SimpleLightbox на згенеровану розмітку
+      const options = {
+        captionsData: 'alt',
+        captionDelay: 250,
+      };
+      const lightbox = new SimpleLightbox('.gallery a', options);
+
       if (pageToFetch === 1) {
         Notiflix.Notify.success(`Hooray! We found ${images.totalHits} images.`);
       }
