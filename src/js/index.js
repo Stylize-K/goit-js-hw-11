@@ -1,7 +1,7 @@
 import { getImages } from './getImages';
 
 let queryToFetch = '';
-let pageToFetch = 1;
+let pageToFetch;
 
 //Писання на елементи
 const formEl = document.querySelector('.search-form');
@@ -21,6 +21,7 @@ function onSubmitForm(event) {
   }
   queryToFetch = query;
   galleryEl.innerHTML = '';
+  pageToFetch = 1;
   buttonLoadMore.classList.add('unvisible');
   getImages(queryToFetch, pageToFetch);
   formEl.reset();
