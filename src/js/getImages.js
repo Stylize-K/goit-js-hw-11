@@ -1,9 +1,7 @@
 import Notiflix from 'notiflix';
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
 import { fetchImages, pageLimit } from './fetchImages';
 import { renderImages } from './renderImages';
-import { buttonLoadMore } from './index';
+import { buttonLoadMore, lightbox } from './index';
 
 //Функція, що фетчить та рендерить порцію картинок
 const getImages = async (query, pageToFetch) => {
@@ -15,13 +13,8 @@ const getImages = async (query, pageToFetch) => {
     return;
   }
   renderImages(data);
-
-  //Ініціалізація біблітеки SimpleLightbox на згенеровану розмітку
-  const options = {
-    captionsData: 'alt',
-    captionDelay: 250,
-  };
-  const lightbox = new SimpleLightbox('.gallery a', options);
+  //Викликаємо метод refresh бібліотеки simplelightbox після оновлення DOM
+  lightbox.refresh();
 
   if (pageToFetch === 1) {
     Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);

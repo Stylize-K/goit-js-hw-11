@@ -1,4 +1,6 @@
 import { getImages } from './getImages';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 let queryToFetch = '';
 let pageToFetch;
@@ -11,6 +13,12 @@ const buttonLoadMore = document.querySelector('.load-more');
 //Створюємо слухачів подій на форму та кнопку
 formEl.addEventListener('submit', onSubmitForm);
 buttonLoadMore.addEventListener('click', onBtnLoadMoreClick);
+
+//Ініціалізація біблітеки SimpleLightbox
+const lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
 
 //Функція-хендлер, що відбувається при сабміті фотми (фетч + рендер галереї)
 function onSubmitForm(event) {
@@ -34,4 +42,4 @@ function onBtnLoadMoreClick() {
   getImages(queryToFetch, pageToFetch);
 }
 
-export { galleryEl, buttonLoadMore };
+export { galleryEl, buttonLoadMore, lightbox };
