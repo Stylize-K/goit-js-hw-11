@@ -1,4 +1,5 @@
 import Notiflix from 'notiflix';
+import { Loading } from 'notiflix/build/notiflix-loading-aio';
 import { fetchImages, pageLimit } from './fetchImages';
 import { renderImages } from './renderImages';
 import { buttonLoadMore, lightbox } from './index';
@@ -6,7 +7,11 @@ import { buttonLoadMore, lightbox } from './index';
 //Функція, що фетчить та рендерить порцію картинок
 const getImages = async (query, pageToFetch) => {
   try {
+    Loading.circle('Loading', {
+      svgColor: '#2596be',
+    });
     const data = await fetchImages(query, pageToFetch);
+    Loading.remove();
     if (!data.hits.length) {
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
